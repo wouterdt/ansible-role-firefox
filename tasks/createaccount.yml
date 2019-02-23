@@ -23,19 +23,6 @@
   when: profile_result.rc == 1
   become_user: "{{item.username}}"
   become: true
-- name: startup firefox to init pràfile dir
-  shell: "export DISPLAY=:1; firefox -headless --screenshot about:config"
-  when: profile_result.rc == 1
-  become_user: "{{item.username}}"
-  become: true
-- debug:
-    var: item.certificates
-- name: loop user and execute for all profiles
-  include: addcertificate.yml
-  loop: "{{item.certificates | default([]) }}"
-  loop_control:
-    loop_var: certificate
-
 - name: stat user.js
   stat:
     path: $HOME/.mozilla/firefox/{{profile_result.stdout}}/user.js
@@ -44,8 +31,7 @@
   file:
     path: $HOME/.mozilla/firefox/{{profile_result.stdout}}/user.js
     state: touch
-    creates: $HOME/.mozilla/firefox/{{profile_result.stdout}}/user.js
-  when: item.config is defined and stat_user.stat.exists == true
+  when: item.config is defined and stat_user.stat.exists == false
   become_user: "{{item.username}}"
   become: true
   register: touch_user
