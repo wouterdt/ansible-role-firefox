@@ -39,6 +39,7 @@
   become_user: "{{item.username}}"
   become: true
   register: touch_user
+  changed_when: false
 - name: enforce user.js values
   lineinfile:
     regexp: user_pref.*{{configline.key}}.*
