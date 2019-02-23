@@ -1,6 +1,7 @@
 ---
 galaxy_info:
   author: Woutedt
+  role_name: firefox
   description: Headless firefox installation with  account creation and user.js
   license: "license (BSD, MIT)"
   platforms:
