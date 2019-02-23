@@ -27,10 +27,14 @@
   stat:
     path: $HOME/.mozilla/firefox/{{profile_result.stdout}}/user.js
   register: stat_user
+- name: debug
+  debug:
+    var: stat_user
+# https://github.com/ansible/ansible/issues/21342
 - name: touch user.js file
-  file:
-    path: $HOME/.mozilla/firefox/{{profile_result.stdout}}/user.js
-    state: touch
+  command: touch $HOME/.mozilla/firefox/{{profile_result.stdout}}/user.js
+  args:
+    creates: $HOME/.mozilla/firefox/{{profile_result.stdout}}/user.js
   when: item.config is defined and stat_user.stat.exists == false
   become_user: "{{item.username}}"
   become: true
