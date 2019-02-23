@@ -3,6 +3,7 @@ Role Name
 
 Install Mozilla Firefox, xvfb to allow for headless firefox via x11
 Creates linux user, can create custom firefox profile and sets user.js file
+
 Requirements
 ------------
 
