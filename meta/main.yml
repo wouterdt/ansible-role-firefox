@@ -1,12 +1,12 @@
 ---
 galaxy_info:
-  author: your name
-  description: your description
-  company: your company (optional)
-
-  license: license (GPLv2, CC-BY, etc)
-
+  author: Woutedt
+  description: Headless firefox installation with  account creation and user.js
+  license: "license (BSD, MIT)"
+  platforms:
+    - name: EL
+      versions:
+        - 7
   min_ansible_version: 2.4
-  galaxy_tags: []
-
+  galaxy_tags: [web, firefox, mozilla]
 dependencies: []
