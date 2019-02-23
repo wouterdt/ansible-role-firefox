@@ -1,0 +1,17 @@
+---
+- name: Converge
+  hosts: all
+  roles:
+    - role: wouterdt.firefox
+  vars:
+    firefox_profile:
+      - username: user1
+        profile: default
+        certificates:
+          - name: mycertificate
+            path: "{{playbook_dir}}/my-cert-nopwd.p12"
+            password: ""
+        config:
+          general.useragent.override: "Mozilla 5"
+      - username: user2
+        profile: test

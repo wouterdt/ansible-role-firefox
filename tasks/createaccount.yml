@@ -1,0 +1,66 @@
+---
+- name: Add the user with a specific uid and a primary group of 'admin'
+  user:
+    name: "{{item.username}}"
+    comment: enforced by ansible
+  become: true
+
+- name: example copying file with owner and permissions
+  copy:
+    src: "{{role_path}}/files/firefoxprofile.py"
+    dest: /tmp/firefoxprofile.py
+    mode: 0755
+- name: check if profile exists
+  command: "python /tmp/firefoxprofile.py {{item.username}} {{item.profile}}"
+  ignore_errors: true
+  register: profile_result
+  changed_when: false
+  become_user: "{{item.username}}"
+  become: true
+# python script will throw error when profile does not exists so if that happpens make the profile
+- name: Create profiles for user
+  shell: "export DISPLAY=:1; firefox -CreateProfile {{ item.profile }}"
+  when: profile_result.rc == 1
+  become_user: "{{item.username}}"
+  become: true
+- name: startup firefox to init pràfile dir
+  shell: "export DISPLAY=:1; firefox -headless --screenshot about:config"
+  when: profile_result.rc == 1
+  become_user: "{{item.username}}"
+  become: true
+- debug:
+    var: item.certificates
+- name: loop user and execute for all profiles
+  include: addcertificate.yml
+  loop: "{{item.certificates | default([]) }}"
+  loop_control:
+    loop_var: certificate
+
+- name: stat user.js
+  stat:
+    path: $HOME/.mozilla/firefox/{{profile_result.stdout}}/user.js
+  register: stat_user
+- name: touch user.js file
+  file:
+    path: $HOME/.mozilla/firefox/{{profile_result.stdout}}/user.js
+    state: touch
+    creates: $HOME/.mozilla/firefox/{{profile_result.stdout}}/user.js
+  when: item.config is defined and stat_user.stat.exists == true
+  become_user: "{{item.username}}"
+  become: true
+  register: touch_user
+- name: enforce user.js values
+  lineinfile:
+    regexp: user_pref.*{{configline.key}}.*
+    line: >
+      user_pref("{{configline.key}}","{{configline.value}}")
+    dest: $HOME/.mozilla/firefox/{{profile_result.stdout}}/user.js
+  when: item.config is defined
+  become_user: "{{item.username}}"
+  become: true
+  loop: "{{lookup('dict', item.config, wantlist=True) }}"
+  # https://github.com/ansible/ansible/issues/8546
+  ignore_errors: true
+  changed_when: false
+  loop_control:
+    loop_var: configline

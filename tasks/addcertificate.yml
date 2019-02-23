@@ -1,0 +1,13 @@
+---
+- block:
+    - name: copy certificate to target
+      copy:
+        src: "{{certificate.path}}"
+        dest: ~/cert.p12
+      become_user: "{{item.username}}"
+      become: true
+    - name: Install p12 certificate
+      command: pk12util -i ~/cert.p12 -d sql:$HOME/.mozilla/firefox/{{profile_result.stdout}} -W '{{certificate.password}}'
+      changed_when: false
+      become_user: "{{item.username}}"
+      become: true

@@ -1,2 +1,5 @@
 ---
 # defaults file for wouterdt.firefox
+firefox_profile:
+  - username: firefox
+    profile: default

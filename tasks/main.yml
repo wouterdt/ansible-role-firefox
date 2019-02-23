@@ -1,2 +1,35 @@
 ---
 # tasks file for wouterdt.firefox
+- name: Install firefox
+  yum:
+    name:
+# yamllint disable-line rule:comments-indentation
+      - firefox
+      - xorg-x11-server-Xvfb
+      - dbus-x11
+  become: true
+- name: copy xvfb systemd file
+  copy:
+    src: "{{role_path}}/files/xvfb.service"
+    dest: /etc/systemd/system/Xvfb.service
+    owner: root
+    group: root
+  become: true
+- name: enable service xvfb
+  systemd:
+    name: Xvfb
+    state: started
+    enabled: true
+  become: true
+- name: create dbus id (for when no /etc/machine-id present)
+  shell: dbus-uuidgen > /var/lib/dbus/machine-id
+  args:
+    creates: /var/lib/dbus/machine-id
+  become: true
+  tags:
+    - skip_ansible_lint  # need shell context here
+- name: loop user and execute for all profiles
+  include: createaccount.yml
+  loop: "{{firefox_profile}}"
+  loop_control:
+    loop_var: item
